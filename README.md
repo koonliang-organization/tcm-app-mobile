@@ -1,6 +1,6 @@
 # Frontend (Expo) – Clean Starter
 
-This is a clean Expo starter aligning to the structure in `frontend/AGENTS.md`.
+This is a clean Expo starter aligning to the structure in `AGENTS.md`.
 
 ## Structure
 
@@ -38,6 +38,5 @@ frontend/
 Open on Android, iOS, or web from the Expo Dev tools.
 
 ## Notes
-- Uses React Navigation (Bottom Tabs) instead of Expo Router.
 - Path aliases: `@/*` → `src/*`, `@assets/*` → `assets/*`.
 - Add additional features under `src/screens`, `src/components`, `src/services`, and `src/utils` as you build.
