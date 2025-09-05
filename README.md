@@ -1,11 +1,11 @@
-# Frontend (Expo) – Clean Starter
+# TCM App Mobile (Expo) – Clean Starter
 
 This is a clean Expo starter aligning to the structure in `AGENTS.md`.
 
 ## Structure
 
 ```
-frontend/
+tcm-app-mobile/
 ├── App.tsx                 # Entry (re-exports src/App)
 ├── app.json                # Expo config
 ├── assets/                 # Icons & splash
