@@ -1,8 +1,9 @@
 import React, { useMemo, useState } from 'react';
 import { View, Text, TextInput } from 'react-native';
-import { Redirect, useRouter } from 'expo-router';
+import { Redirect, useRouter, Link } from 'expo-router';
 import { Button } from '@/components/Button';
 import { getCurrentUser, signUpWithEmailPassword } from '@/services/authService';
+import { useSubmitLock } from '@/utils/useSubmitLock';
 
 export default function SignupScreen() {
   const router = useRouter();
@@ -11,6 +12,7 @@ export default function SignupScreen() {
   const [password, setPassword] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
+  const canAttempt = useSubmitLock(900);
 
   const emailError = useMemo(() => {
     if (!email) return undefined;
@@ -27,6 +29,7 @@ export default function SignupScreen() {
 
   const handleSignUp = async () => {
     if (!canSubmit) return;
+    if (!canAttempt()) return;
     setSubmitting(true);
     setFormError(null);
     try {
@@ -65,6 +68,16 @@ export default function SignupScreen() {
         {!!passwordError && <Text style={{ color: '#c00' }}>{passwordError}</Text>}
       </View>
       <Button title={submitting ? 'Creating…' : 'Sign up'} onPress={handleSignUp} style={{ opacity: canSubmit ? 1 : 0.6 }} />
+
+      <View style={{ alignItems: 'center' }}>
+        <Text style={{ color: '#777', marginVertical: 8 }}>or</Text>
+      </View>
+
+      <View style={{ alignItems: 'center' }}>
+        <Link href="/auth/login" accessibilityRole="link" style={{ color: '#007AFF', fontSize: 16 }}>
+          Already have an account? Sign in
+        </Link>
+      </View>
     </View>
   );
 }

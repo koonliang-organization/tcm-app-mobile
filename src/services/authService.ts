@@ -7,6 +7,7 @@ import {
   clearSessionRaw,
   type UserRecord,
 } from '@/data/mockData';
+import { persistSessionSecure, clearSessionSecure } from '@/utils/secureSession';
 
 function randomId(len = 16) {
   const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
@@ -64,6 +65,8 @@ export async function signOut(): Promise<void> {
 
 export function saveSession(session: AuthSession) {
   setSessionRaw(JSON.stringify(session));
+  // Persist securely on native platforms (no-op on web)
+  void persistSessionSecure();
 }
 
 export function loadSession(): AuthSession {
@@ -79,9 +82,9 @@ export function loadSession(): AuthSession {
 
 export function clearSession() {
   clearSessionRaw();
+  void clearSessionSecure();
 }
 
 export function getCurrentUser(): AuthUser | null {
   return loadSession().user;
 }
-

@@ -3,6 +3,7 @@ import { View, Text, TextInput, Pressable, ActivityIndicator, Image, useColorSch
 import { Link, Redirect, useRouter } from 'expo-router';
 import { Button } from '@/components/Button';
 import { getCurrentUser, loginAnonymously, loginWithEmailPassword } from '@/services/authService';
+import { useSubmitLock } from '@/utils/useSubmitLock';
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -28,9 +29,11 @@ export default function LoginScreen() {
   const canSubmit = email.length > 0 && password.length > 0 && !emailError && !passwordError && !submitting;
 
   const [formError, setFormError] = useState<string | null>(null);
+  const canAttempt = useSubmitLock(900);
 
   const handleSignIn = async () => {
     if (!canSubmit) return;
+    if (!canAttempt()) return; // throttle rapid taps
     setSubmitting(true);
     setFormError(null);
     try {
@@ -45,6 +48,7 @@ export default function LoginScreen() {
   };
 
   const handleGuest = async () => {
+    if (!canAttempt()) return;
     setSubmitting(true);
     setFormError(null);
     try {

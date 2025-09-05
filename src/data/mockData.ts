@@ -70,3 +70,20 @@ export function clearSessionRaw() {
   storage.removeItem(SESSION_KEY);
 }
 
+// Seed a default demo user for local development
+function randomId(len = 12) {
+  const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+  let out = '';
+  for (let i = 0; i < len; i++) out += chars[(Math.random() * chars.length) | 0];
+  return out;
+}
+
+export function ensureSeedUsers() {
+  const db = loadUsers();
+  const email = 'demo@example.com';
+  const key = email.toLowerCase();
+  if (!db[key]) {
+    db[key] = { id: randomId(), email, password: 'pass1234' };
+    saveUsers(db);
+  }
+}
