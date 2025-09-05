@@ -2,6 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { View, Text, TextInput, Pressable, ActivityIndicator, Image, useColorScheme } from 'react-native';
 import { Link, useRouter } from 'expo-router';
 import { Button } from '@/components/Button';
+import { loginAnonymously, loginWithEmailPassword } from '@/services/authService';
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -25,12 +26,18 @@ export default function LoginScreen() {
 
   const canSubmit = email.length > 0 && password.length > 0 && !emailError && !passwordError && !submitting;
 
+  const [formError, setFormError] = useState<string | null>(null);
+
   const handleSignIn = async () => {
     if (!canSubmit) return;
     setSubmitting(true);
+    setFormError(null);
     try {
-      // Service integration comes later; for now just navigate
+      await loginWithEmailPassword(email.trim(), password);
       router.replace('/');
+    } catch (e: any) {
+      const msg = e?.message || 'Sign in failed';
+      setFormError(msg);
     } finally {
       setSubmitting(false);
     }
@@ -38,7 +45,9 @@ export default function LoginScreen() {
 
   const handleGuest = async () => {
     setSubmitting(true);
+    setFormError(null);
     try {
+      await loginAnonymously();
       router.replace('/');
     } finally {
       setSubmitting(false);
@@ -60,6 +69,12 @@ export default function LoginScreen() {
       <Text accessibilityRole="header" style={{ fontSize: 28, fontWeight: '600', textAlign: 'center', marginBottom: 8 }}>
         Sign in
       </Text>
+
+      {!!formError && (
+        <View accessibilityLiveRegion="polite" style={{ backgroundColor: '#fdecea', borderColor: '#f5c2c0', borderWidth: 1, padding: 10, borderRadius: 8 }}>
+          <Text style={{ color: '#b00020' }}>{formError}</Text>
+        </View>
+      )}
 
       <View accessibilityLabel="Email field" style={{ gap: 6 }}>
         <Text style={{ fontSize: 14, color: '#333' }}>Email</Text>

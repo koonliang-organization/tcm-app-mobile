@@ -11,8 +11,8 @@ Implement an authentication screen that allows users to:
 - Works on Web and Native via Expo Router.
 
 ## Deliverables
-- Route `app/(auth)/login.tsx` (Expo Router)
-- Optional: `app/(auth)/signup.tsx` or sign‑up inline in the same screen
+- Route `app/auth/login.tsx` (Expo Router)
+- Optional: `app/auth/signup.tsx` or sign‑up inline in the same screen
 - Auth service in `src/services/auth.ts`
 - Types in `src/types/auth.ts`
 - Unit tests for the service and component behavior
@@ -34,7 +34,7 @@ Implement an authentication screen that allows users to:
   - Store an in‑memory/secure flag to distinguish guest vs. registered users
 - Post‑auth navigation
   - On success, navigate to `/` (home). Replace history so back does not return to login
-  - If already authenticated, redirect from `/ (auth)/login` to `/`
+  - If already authenticated, redirect from `/auth/login` to `/`
 
 ## Non‑Functional Requirements
 - Accessibility: labels, roles, focus order, keyboard navigation, screen reader hints
@@ -48,11 +48,21 @@ Implement an authentication screen that allows users to:
   - Primary button: “Sign in”
   - Secondary link/button: “Create account”
   - Tertiary: “Continue as guest”
+  - Google SSO button: “Sign in with Google” using the official multicolor G mark (PNG)
+- Google button spec
+  - Asset: `assets/google/google_g.png` (multicolor “G”, transparent, ~18–24 px square)
+  - Layout: left‑aligned G icon; centered label text
+  - Size: height 44, border radius 8, horizontal padding 12
+  - Colors (light): background `#ffffff`, border `#dadce0`, label `#3c4043`
+  - Colors (dark): background `#1f1f1f`, border `#3c4043`, label `#e3e3e3`
+  - Pressed feedback: light `#f1f3f4`, dark `#2a2a2a`; Android ripple accordingly
+  - Disabled: reduce opacity and ignore presses while submitting
+  - Accessibility: role=button, label “Sign in with Google”, icon ignores invert colors
 - Visual feedback: disabled buttons and spinner while submitting
 
 ## Routing (Expo Router)
-- File: `app/(auth)/login.tsx`
-- Optional sign‑up: `app/(auth)/signup.tsx`
+- File: `app/auth/login.tsx`
+- Optional sign‑up: `app/auth/signup.tsx`
 - Auth guard: if user is authenticated, redirect to `/`
 
 ## Service API
@@ -80,6 +90,7 @@ export async function signOut(): Promise<void> {}
   - Enter email and password and sign in
   - Navigate to sign‑up and create an account
   - Continue as guest without credentials
+  - See a Google SSO button with correct styling and pressed/disabled states
 - Validation errors show and prevent submission until resolved
 - On success, app navigates to `/` and does not return to login on back
 - Session persists across app restarts (except for guest if product decides otherwise)
@@ -98,4 +109,3 @@ export async function signOut(): Promise<void> {}
 - Replace mock service with real API when available
 - Add telemetry events: `auth_login_submit`, `auth_signup_submit`, `auth_anonymous_continue`, include result/surface (no PII)
 - Confirm product rules for guest persistence and upgrade to full account flow
-
