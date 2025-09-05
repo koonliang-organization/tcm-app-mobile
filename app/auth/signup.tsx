@@ -1,11 +1,12 @@
 import React, { useMemo, useState } from 'react';
 import { View, Text, TextInput } from 'react-native';
-import { useRouter } from 'expo-router';
+import { Redirect, useRouter } from 'expo-router';
 import { Button } from '@/components/Button';
-import { signUpWithEmailPassword } from '@/services/authService';
+import { getCurrentUser, signUpWithEmailPassword } from '@/services/authService';
 
 export default function SignupScreen() {
   const router = useRouter();
+  const authed = !!getCurrentUser();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -37,6 +38,10 @@ export default function SignupScreen() {
       setSubmitting(false);
     }
   };
+
+  if (authed) {
+    return <Redirect href="/" />;
+  }
 
   return (
     <View style={{ flex: 1, padding: 24, gap: 16, justifyContent: 'center' }}>

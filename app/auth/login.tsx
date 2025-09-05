@@ -1,13 +1,14 @@
 import React, { useMemo, useState } from 'react';
 import { View, Text, TextInput, Pressable, ActivityIndicator, Image, useColorScheme } from 'react-native';
-import { Link, useRouter } from 'expo-router';
+import { Link, Redirect, useRouter } from 'expo-router';
 import { Button } from '@/components/Button';
-import { loginAnonymously, loginWithEmailPassword } from '@/services/authService';
+import { getCurrentUser, loginAnonymously, loginWithEmailPassword } from '@/services/authService';
 
 export default function LoginScreen() {
   const router = useRouter();
   const scheme = useColorScheme();
   const isDark = scheme === 'dark';
+  const authed = !!getCurrentUser();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -63,6 +64,10 @@ export default function LoginScreen() {
       setSubmitting(false);
     }
   };
+
+  if (authed) {
+    return <Redirect href="/" />;
+  }
 
   return (
     <View style={{ flex: 1, padding: 24, gap: 16, justifyContent: 'center' }}>

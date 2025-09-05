@@ -13,7 +13,7 @@ Implement an authentication screen that allows users to:
 ## Deliverables
 - Route `app/auth/login.tsx` (Expo Router)
 - Optional: `app/auth/signup.tsx` or sign‑up inline in the same screen
-- Auth service in `src/services/auth.ts`
+- Auth service in `src/services/authService.ts`
 - Types in `src/types/auth.ts`
 - Unit tests for the service and component behavior
 
@@ -66,7 +66,7 @@ Implement an authentication screen that allows users to:
 - Auth guard: if user is authenticated, redirect to `/`
 
 ## Service API
-Create `src/services/auth.ts` with the following functions. For now, implement using a simple mock or your real backend API.
+Create `src/services/authService.ts` with the following functions. For now, implement using a simple mock or your real backend API.
 
 ```ts
 export type AuthUser = {
