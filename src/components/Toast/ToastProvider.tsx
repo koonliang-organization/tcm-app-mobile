@@ -1,6 +1,5 @@
 import React, { createContext, useCallback, useContext, useMemo, useRef, useState } from 'react';
-import { Platform, View, Text } from 'react-native';
-import { ToastAndroid } from 'react-native';
+import { Platform, Text, ToastAndroid, View } from 'react-native';
 
 type ToastOptions = { duration?: number };
 

@@ -1,5 +1,5 @@
+import { getSessionRaw, SESSION_KEY, setSessionRaw } from '@/data/mockData';
 import * as SecureStore from 'expo-secure-store';
-import { SESSION_KEY, setSessionRaw, getSessionRaw, clearSessionRaw } from '@/data/mockData';
 
 export async function hydrateSessionFromSecureStore() {
   try {
@@ -8,7 +8,7 @@ export async function hydrateSessionFromSecureStore() {
       // Only hydrate if memory/local is empty to avoid overwriting newer data
       setSessionRaw(raw);
     }
-  } catch (e) {
+  } catch {
     // no-op on web or if unavailable
   }
 }
