@@ -105,6 +105,21 @@ export async function signOut(): Promise<void> {}
   - Anonymous path triggers `loginAnonymously`
 - Integration: mock service to simulate success/failure and assert routing via Expo Router
 
+- E2E (Web): Playwright
+  - Setup:
+    - Install: `npm i -D @playwright/test && npx playwright install`
+    - Start web: `npm run web` (or `expo start --web`)
+    - Run: `BASE_URL=http://localhost:8081 npx playwright test e2e/login.spec.ts`
+  - Cases:
+    - Login page renders at `/auth/login` with Email and Password fields visible.
+    - Client validation shows “Enter a valid email” and “Min 8 characters” for bad inputs.
+    - Submitting `demo@example.com` + wrong password shows “Invalid email or password” and stays on `/auth/login`.
+    - Optional success path: valid credentials (`demo@example.com` / `pass1234`) navigate to `/` and replace history.
+    - Optional guest path: “Continue as guest” navigates to `/` without credentials.
+  - Notes:
+    - Test clears `localStorage` before load to avoid being already authenticated.
+    - Selectors use accessible labels/roles to align with a11y best practices.
+
 ## Notes & Follow‑ups
 - Replace mock service with real API when available
 - Add telemetry events: `auth_login_submit`, `auth_signup_submit`, `auth_anonymous_continue`, include result/surface (no PII)
