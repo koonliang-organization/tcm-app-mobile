@@ -1,14 +1,14 @@
-import React, { useMemo, useState } from 'react';
-import { SafeAreaView, View, StyleSheet, Text } from 'react-native';
-import { useRouter } from 'expo-router';
-import { getCurrentUser, signOut } from '@/services/authService';
 import { useToast } from '@/components/Toast/ToastProvider';
-import { SearchBar } from './components/SearchBar';
-import { CategoryChips } from './components/CategoryChips';
+import { getCurrentUser, signOut } from '@/services/authService';
+import { useRouter } from 'expo-router';
+import React, { useMemo, useState } from 'react';
+import { SafeAreaView, StyleSheet, View, ScrollView } from 'react-native';
 import { BottomCategoryNav } from './components/BottomCategoryNav';
-import { ResultsList } from './components/ResultsList';
+import { CategoryBoxes } from './components/CategoryBoxes';
+import { SearchBar } from './components/SearchBar';
+import { DATA, countByCategory } from './data';
 
-export type Category = 'all' | 'herbs' | 'recipes' | 'formulas';
+export type Category = 'herbs' | 'recipes' | 'formulas' | 'acupuncture';
 export type MainTab = 'home' | 'upload' | 'scan' | 'notifications' | 'profile';
 
 export default function HomeScreen() {
@@ -17,7 +17,7 @@ export default function HomeScreen() {
   const { show } = useToast();
 
   const [query, setQuery] = useState('');
-  const [category, setCategory] = useState<Category>('all');
+  const [category, setCategory] = useState<Category | null>(null);
   const [activeTab, setActiveTab] = useState<MainTab>('home');
 
   const handleSignOut = async () => {
@@ -26,37 +26,26 @@ export default function HomeScreen() {
     router.replace('/auth/login');
   };
 
-  const chips = useMemo(
-    () => [
-      { key: 'all', label: 'All' },
-      { key: 'herbs', label: 'Herbs' },
-      { key: 'recipes', label: 'Recipes' },
-      { key: 'formulas', label: 'Formulas' },
-    ] as const,
-    []
-  );
-
-  const Header = (
-    <View style={styles.headerWrap}>
-      <SearchBar
-        value={query}
-        onChangeText={setQuery}
-        placeholder="Search Herbs, Recipes, Formulas"
-        onOpenFilters={() => { /* UI only for now */ }}
-      />
-      <Text style={styles.sectionTitle}>Category</Text>
-      <CategoryChips
-        items={chips}
-        selected={category}
-        onSelect={(key) => setCategory(key as Category)}
-      />
-      <View style={{ height: 12 }} />
-    </View>
-  );
+  const counts = useMemo(() => countByCategory(DATA), []);
 
   return (
     <SafeAreaView style={styles.container}>
-      <ResultsList query={query} category={category} ListHeaderComponent={Header} />
+      <ScrollView contentContainerStyle={{ paddingBottom: 96 }}>
+        <View style={styles.headerWrap}>
+          <SearchBar
+            value={query}
+            onChangeText={setQuery}
+            placeholder="Search"
+            onOpenFilters={() => { /* UI only for now */ }}
+          />
+          <CategoryBoxes
+            selected={category}
+            counts={counts}
+            onSelect={(key) => setCategory(key)}
+          />
+          <View style={{ height: 12 }} />
+        </View>
+      </ScrollView>
       <BottomCategoryNav activeTab={activeTab} onSelectTab={setActiveTab} onSignOut={handleSignOut} />
     </SafeAreaView>
   );
@@ -64,6 +53,5 @@ export default function HomeScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#fff' },
-  headerWrap: { paddingTop: 8 },
-  sectionTitle: { marginTop: 14, marginBottom: 6, fontWeight: '700', color: '#1C1C1E' },
+  headerWrap: { paddingTop: 8, paddingHorizontal: 16 },
 });
