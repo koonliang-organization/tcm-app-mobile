@@ -1,8 +1,8 @@
+import { BellIcon, HomeIcon, ProfileIcon, ScanIcon, UploadIcon } from '@/components/Icons';
 import React from 'react';
-import { View, Text, Pressable, StyleSheet, Platform } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { MainTab } from '../HomeScreen';
-import { HomeIcon, UploadIcon, ScanIcon, BellIcon, ProfileIcon } from '@/components/Icons';
 
 type Props = {
   activeTab: MainTab;
@@ -23,10 +23,11 @@ const BASE_TABS: { key: Exclude<MainTab, 'scan'>; label: string; icon: 'home'|'u
 
 export function BottomCategoryNav({ activeTab, onSelectTab, onSignOut }: Props) {
   const insets = useSafeAreaInsets();
-  const bottomPad = Math.max(insets.bottom, 10);
+  // We offset the whole bar by the bottom inset, so only add a small internal padding here.
+  const bottomPad = 10;
 
   return (
-    <View pointerEvents="box-none" style={styles.absolute}>
+    <View pointerEvents="box-none" style={[styles.absolute, { bottom: insets.bottom }]}>
       <View style={[styles.container, { paddingBottom: bottomPad }]}
         accessibilityRole="tablist"
         accessibilityLabel="Bottom navigation"
@@ -91,6 +92,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
+    zIndex: 100,
   },
   container: {
     flexDirection: 'row',

@@ -1,20 +1,21 @@
 import { useToast } from '@/components/Toast/ToastProvider';
-import { getCurrentUser, signOut } from '@/services/authService';
+import { DATA, countByCategory } from '@/data/mockData';
+import { signOut } from '@/services/authService';
 import { useRouter } from 'expo-router';
 import React, { useMemo, useState } from 'react';
-import { SafeAreaView, StyleSheet, View, ScrollView } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BottomCategoryNav } from './components/BottomCategoryNav';
 import { CategoryBoxes } from './components/CategoryBoxes';
 import { SearchBar } from './components/SearchBar';
-import { DATA, countByCategory } from './data';
 
 export type Category = 'herbs' | 'recipes' | 'formulas' | 'acupuncture';
 export type MainTab = 'home' | 'upload' | 'scan' | 'notifications' | 'profile';
 
 export default function HomeScreen() {
   const router = useRouter();
-  const user = getCurrentUser();
   const { show } = useToast();
+  const insets = useSafeAreaInsets();
 
   const [query, setQuery] = useState('');
   const [category, setCategory] = useState<Category | null>(null);
@@ -29,8 +30,8 @@ export default function HomeScreen() {
   const counts = useMemo(() => countByCategory(DATA), []);
 
   return (
-    <SafeAreaView style={styles.container}>
-      <ScrollView contentContainerStyle={{ paddingBottom: 96 }}>
+    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
+      <ScrollView contentContainerStyle={{ paddingBottom: 96 + insets.bottom }}>
         <View style={styles.headerWrap}>
           <SearchBar
             value={query}

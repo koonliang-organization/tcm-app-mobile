@@ -1,6 +1,6 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { View, TextInput, StyleSheet, Pressable, Text } from 'react-native';
 import { SearchIcon } from '@/components/Icons';
+import React, { useEffect, useState } from 'react';
+import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 
 type Props = {
   value: string;
@@ -20,7 +20,7 @@ export function SearchBar({ value, placeholder, onChangeText, onOpenFilters }: P
       if (local !== value) onChangeText(local);
     }, 300);
     return () => clearTimeout(id);
-  }, [local]);
+  }, [local, value, onChangeText]);
 
   return (
     <View style={styles.wrapper} accessibilityRole="search" accessibilityLabel="Global search">

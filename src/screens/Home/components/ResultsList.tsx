@@ -1,8 +1,8 @@
-import React, { useMemo, useCallback } from 'react';
-import { FlatList, View, Text, StyleSheet } from 'react-native';
+import type { Item } from '@/data/mockData';
+import { DATA } from '@/data/mockData';
+import React, { useMemo } from 'react';
+import { FlatList, StyleSheet, Text, View } from 'react-native';
 import type { Category } from '../HomeScreen';
-import type { Item } from '../data';
-import { DATA } from '../data';
 
 type Props = { query: string; category: Category; ListHeaderComponent?: React.ReactElement };
 
