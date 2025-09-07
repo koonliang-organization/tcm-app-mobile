@@ -1,4 +1,4 @@
-import { getSessionRaw, SESSION_KEY, setSessionRaw } from '@/data/mockData';
+import { getSessionRaw, SESSION_KEY, setSessionRaw } from '@/data/mockUser';
 import * as SecureStore from 'expo-secure-store';
 
 export async function hydrateSessionFromSecureStore() {

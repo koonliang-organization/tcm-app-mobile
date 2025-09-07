@@ -1,4 +1,4 @@
-import { clearSessionRaw, ensureSeedUsers, saveUsers } from '@/data/mockData';
+import { clearSessionRaw, ensureSeedUsers, saveUsers } from '@/data/mockUser';
 import {
   clearSession,
   getCurrentUser,

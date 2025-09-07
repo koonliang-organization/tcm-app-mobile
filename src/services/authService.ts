@@ -6,7 +6,7 @@ import {
   setSessionRaw,
   clearSessionRaw,
   type UserRecord,
-} from '@/data/mockData';
+} from '@/data/mockUser';
 import { persistSessionSecure, clearSessionSecure } from '@/utils/secureSession';
 
 function randomId(len = 16) {
