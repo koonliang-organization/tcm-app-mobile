@@ -65,6 +65,13 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     padding: 12,
     marginBottom: 0,
+    overflow: 'hidden',
+    // subtle card shadow similar to reference screenshot
+    shadowColor: '#000',
+    shadowOpacity: 0.08,
+    shadowOffset: { width: 0, height: 4 },
+    shadowRadius: 10,
+    elevation: 3,
   },
   active: {
     borderWidth: 2,
@@ -72,8 +79,9 @@ const styles = StyleSheet.create({
   },
   thumb: {
     width: '100%',
-    height: 120,
-    borderRadius: 10,
+    height: 148,
+    borderTopLeftRadius: 14,
+    borderTopRightRadius: 14,
     marginBottom: 8,
   },
   title: { color: '#1C1C1E', fontWeight: '700', fontSize: 16 },

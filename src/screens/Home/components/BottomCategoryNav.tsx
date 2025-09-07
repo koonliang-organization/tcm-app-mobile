@@ -44,8 +44,8 @@ export function BottomCategoryNav({ activeTab, onSelectTab, onSignOut }: Props) 
                 accessibilityState={{ selected: active }}
                 accessibilityLabel={t.label}
               >
-                {t.icon === 'home' && <HomeIcon size={22} color={active ? ACTIVE : INACTIVE} />}
-                {t.icon === 'upload' && <UploadIcon size={22} color={active ? ACTIVE : INACTIVE} />}
+                {t.icon === 'home' && <HomeIcon size={24} color={active ? ACTIVE : INACTIVE} />}
+                {t.icon === 'upload' && <UploadIcon size={24} color={active ? ACTIVE : INACTIVE} />}
                 <Text style={[styles.tabLabel, active && styles.tabLabelActive]}>{t.label}</Text>
               </Pressable>
             );
@@ -59,7 +59,7 @@ export function BottomCategoryNav({ activeTab, onSelectTab, onSignOut }: Props) 
           accessibilityLabel="Scan"
           style={({ pressed }) => [styles.scanBtn, pressed && { transform: [{ scale: 0.98 }] }]}
         >
-          <ScanIcon size={24} color={BG} />
+          <ScanIcon size={26} color={BG} />
         </Pressable>
 
         <View style={styles.sideGroup}>
@@ -74,8 +74,8 @@ export function BottomCategoryNav({ activeTab, onSelectTab, onSignOut }: Props) 
                 accessibilityState={{ selected: active }}
                 accessibilityLabel={t.label}
               >
-                {t.icon === 'bell' && <BellIcon size={22} color={active ? ACTIVE : INACTIVE} />}
-                {t.icon === 'profile' && <ProfileIcon size={22} color={active ? ACTIVE : INACTIVE} />}
+                {t.icon === 'bell' && <BellIcon size={24} color={active ? ACTIVE : INACTIVE} />}
+                {t.icon === 'profile' && <ProfileIcon size={24} color={active ? ACTIVE : INACTIVE} />}
                 <Text style={[styles.tabLabel, active && styles.tabLabelActive]}>{t.label}</Text>
               </Pressable>
             );
@@ -116,13 +116,13 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   tab: {
-    minWidth: 56,
+    minWidth: 60,
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 2,
+    gap: 3,
     paddingVertical: 6,
   },
-  tabLabel: { color: INACTIVE, fontWeight: '600', fontSize: 11 },
+  tabLabel: { color: INACTIVE, fontWeight: '600', fontSize: 12 },
   tabLabelActive: { color: ACTIVE },
   scanBtn: {
     width: 56,
