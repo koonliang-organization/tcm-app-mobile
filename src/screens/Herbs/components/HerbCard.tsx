@@ -21,7 +21,9 @@ export const HerbCard = React.memo(({ herb, onPress }: HerbCardProps) => {
 
         {(herb.property || (herb.flavor && herb.flavor.length)) && (
           <View style={styles.tagsRow}>
-            {!!herb.property && <View style={styles.tag}><Text style={styles.tagText}>{herb.property}</Text></View>}
+            {!!herb.property && (
+              <View style={styles.tag}><Text style={styles.tagText}>{herb.property}</Text></View>
+            )}
             {(herb.flavor || []).map((f, idx) => (
               <View key={`flavor-${idx}`} style={styles.tag}><Text style={styles.tagText}>{f}</Text></View>
             ))}
@@ -58,7 +60,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     padding: 12,
     borderRadius: 12,
-    marginHorizontal: 16,
+    marginHorizontal: 0,
     marginVertical: 6,
     shadowColor: '#000',
     shadowOpacity: 0.06,
@@ -71,9 +73,9 @@ const styles = StyleSheet.create({
   title: { fontSize: 16, fontWeight: '600', color: '#111' },
   subtitle: { marginTop: 2, fontSize: 13, color: '#555' },
   caption: { marginTop: 4, fontSize: 12, color: '#777' },
-  bodyText: { marginTop: 6, fontSize: 12.5, color: '#333' },
-  tagsRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 6 },
-  tag: { backgroundColor: '#F2F4F7', borderRadius: 10, paddingVertical: 2, paddingHorizontal: 8 },
+  bodyText: { marginTop: 6, fontSize: 12.5, color: '#333', flexShrink: 1 },
+  tagsRow: { flexDirection: 'row', flexWrap: 'wrap', marginTop: 6, marginRight: -6 },
+  tag: { backgroundColor: '#F2F4F7', borderRadius: 10, paddingVertical: 2, paddingHorizontal: 8, marginRight: 6, marginBottom: 4 },
   tagText: { fontSize: 12, color: '#333' },
   link: { color: '#0a7ea4', fontSize: 12.5, textDecorationLine: 'underline', fontWeight: '600' },
 });

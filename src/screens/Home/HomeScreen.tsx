@@ -32,11 +32,10 @@ export default function HomeScreen() {
   return (
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right', 'bottom']}>
       <ScrollView
-        style={{ paddingHorizontal: 16 }}
         contentContainerStyle={{ paddingBottom: 96 + insets.bottom }}
-        contentInsetAdjustmentBehavior="automatic"
       >
-        <View style={styles.headerWrap}>
+        <View style={styles.content}>
+          <View style={styles.headerWrap}>
           <SearchBar
             value={query}
             onChangeText={setQuery}
@@ -54,6 +53,7 @@ export default function HomeScreen() {
             }}
           />
           <View style={{ height: 12 }} />
+          </View>
         </View>
       </ScrollView>
       <BottomCategoryNav activeTab={activeTab} onSelectTab={setActiveTab} onSignOut={handleSignOut} />
@@ -62,6 +62,7 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fff' },
+  container: { flex: 1, backgroundColor: '#fff', overflow: 'hidden' },
+  content: { paddingHorizontal: 16 },
   headerWrap: { paddingTop: 8 },
 });

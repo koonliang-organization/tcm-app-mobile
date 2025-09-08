@@ -2,19 +2,19 @@ import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-export function AlphaIndexBar({ letters, onSelect }: { letters: string[]; onSelect: (index: number) => void }) {
+export function AlphaIndexBar({ letters, onSelect }: { letters: string[]; onSelect: (letter: string) => void }) {
   const insets = useSafeAreaInsets();
   return (
     <View
       pointerEvents="box-none"
-      style={[styles.wrap, { right: (insets.right || 0) + 6, top: insets.top, bottom: insets.bottom }]}
+      style={[styles.wrap, { right: (insets.right || 0) + 2, top: insets.top, bottom: insets.bottom }]}
     >
       <View style={styles.col}>
         {letters.map((l, i) => (
           <Pressable
             key={`${l}-${i}`}
             style={({ pressed }) => [styles.item, pressed && styles.pressed]}
-            onPress={() => onSelect(i)}
+            onPress={() => onSelect(l)}
             accessibilityRole="button"
             accessibilityLabel={`Jump to ${l}`}
           >
