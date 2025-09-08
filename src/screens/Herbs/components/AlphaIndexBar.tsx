@@ -4,6 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export function AlphaIndexBar({ letters, onSelect }: { letters: string[]; onSelect: (letter: string) => void }) {
   const insets = useSafeAreaInsets();
+  console.log('[AlphaIndexBar] Received letters:', letters);
   return (
     <View
       pointerEvents="box-none"
@@ -14,7 +15,10 @@ export function AlphaIndexBar({ letters, onSelect }: { letters: string[]; onSele
           <Pressable
             key={`${l}-${i}`}
             style={({ pressed }) => [styles.item, pressed && styles.pressed]}
-            onPress={() => onSelect(l)}
+            onPress={() => {
+              console.log(`[AlphaIndexBar] Letter pressed: ${l}`);
+              onSelect(l);
+            }}
             accessibilityRole="button"
             accessibilityLabel={`Jump to ${l}`}
           >

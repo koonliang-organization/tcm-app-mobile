@@ -1,5 +1,5 @@
 import type { Herb } from '@/data/herbs';
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useCallback, useMemo } from 'react';
 import { SectionList, SectionListData, SectionListRenderItem, StyleSheet, Text, View, Platform } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BottomCategoryNav } from '../Home/components/BottomCategoryNav';
@@ -17,8 +17,86 @@ export default function HerbsScreen() {
   const [activeTab, setActiveTab] = useState<MainTab>('home');
   const [headerHeight, setHeaderHeight] = useState(0);
   const totalItems = sections.reduce((sum, s) => sum + s.data.length, 0);
+  
+  // Debug letters vs sections alignment
+  console.log('[HerbsScreen] Letters from hook:', letters);
+  console.log('[HerbsScreen] Sections from hook:', sections.map(s => s.title));
+
+  // Android SectionIndexer-like implementation
+  const sectionIndexer = useMemo(() => {
+    if (Platform.OS !== 'android') return null;
+    
+    const getSections = () => letters;
+    
+    const getPositionForSection = (sectionIndex: number): number => {
+      if (sectionIndex < 0 || sectionIndex >= sections.length) return 0;
+      
+      // In a SectionList, the flat position is just the cumulative count of items
+      // The section headers are handled separately by SectionList
+      let position = 0;
+      for (let i = 0; i < sectionIndex; i++) {
+        position += sections[i].data.length; // Only count items, not headers
+      }
+      return position;
+    };
+    
+    const getSectionForPosition = (position: number): number => {
+      let currentPos = 0;
+      for (let i = 0; i < sections.length; i++) {
+        const sectionSize = sections[i].data.length; // Only items, no headers
+        if (position < currentPos + sectionSize) {
+          return i;
+        }
+        currentPos += sectionSize;
+      }
+      return sections.length - 1;
+    };
+    
+    return {
+      getSections,
+      getPositionForSection,
+      getSectionForPosition,
+    };
+  }, [sections, letters]);
+
+  const scrollToSection = useCallback((letter: string) => {
+    const sectionIndex = sections.findIndex((s) => s.title === letter);
+    console.log(`[HerbsScreen] scrollToSection: ${letter} -> sectionIndex: ${sectionIndex}`);
+    
+    // Log all sections for debugging
+    console.log(`[HerbsScreen] All sections:`, sections.map((s, i) => `${i}: ${s.title} (${s.data.length} items)`));
+    
+    if (sectionIndex < 0) {
+      console.warn(`[HerbsScreen] Section not found for letter: ${letter}`);
+      return;
+    }
+
+    // For Android, try simpler approach first
+    if (Platform.OS === 'android') {
+      console.log(`[HerbsScreen] Android scrolling to section ${sectionIndex} (${letter})`);
+      
+      // Try direct scrollToLocation with no viewPosition/viewOffset to see if that works
+      listRef.current?.scrollToLocation({
+        sectionIndex,
+        itemIndex: 0,
+        animated: true,
+        viewPosition: 0, // Top of viewport
+      });
+    } else {
+      // iOS and web: use existing logic
+      listRef.current?.scrollToLocation({
+        sectionIndex,
+        itemIndex: 0,
+        animated: true,
+        viewPosition: 0,
+        viewOffset: headerHeight + 4,
+      });
+    }
+  }, [sections, sectionIndexer, headerHeight]);
 
   const onSelectIndex = (letter: string) => {
+    console.log(`[HerbsScreen] onSelectIndex called with letter: ${letter}, Platform: ${Platform.OS}`);
+    
     // Web: use DOM anchor for reliable scroll
     if (Platform.OS === 'web') {
       const doc: any = (globalThis as any).document;
@@ -54,19 +132,9 @@ export default function HerbsScreen() {
         return;
       }
     }
-    // Native fallback: two-step SectionList jump
-    const sectionIndex = sections.findIndex((s) => s.title === letter);
-    if (sectionIndex < 0) return;
-    listRef.current?.scrollToLocation({ sectionIndex, itemIndex: 0, animated: false, viewPosition: 0 });
-    setTimeout(() => {
-      listRef.current?.scrollToLocation({
-        sectionIndex,
-        itemIndex: 0,
-        animated: true,
-        viewPosition: 0,
-        viewOffset: headerHeight + 4,
-      });
-    }, 60);
+    
+    // Native: use our improved scrollToSection method
+    scrollToSection(letter);
   };
 
   const renderItem: SectionListRenderItem<Herb> = ({ item }) => <HerbCard herb={item} />;
@@ -75,6 +143,20 @@ export default function HerbsScreen() {
       <Text style={styles.headerTxt}>{section.title}</Text>
     </View>
   );
+
+  // Android-specific getItemLayout for better scrolling performance
+  const getItemLayout = useCallback((data: any, index: number) => {
+    if (Platform.OS !== 'android') return undefined;
+    
+    const ITEM_HEIGHT = 80; // Estimated height of HerbCard
+    const HEADER_HEIGHT = 32; // Estimated height of section header
+    
+    return {
+      length: ITEM_HEIGHT,
+      offset: index * ITEM_HEIGHT,
+      index,
+    };
+  }, []);
 
   return (
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right', 'bottom']}>
@@ -86,10 +168,11 @@ export default function HerbsScreen() {
           renderItem={renderItem}
           renderSectionHeader={renderSectionHeader}
           stickySectionHeadersEnabled
-          initialNumToRender={Platform.OS === 'web' ? Math.min(totalItems + sections.length, 1000) : 16}
-          windowSize={Platform.OS === 'web' ? 1000 : 10}
-          maxToRenderPerBatch={Platform.OS === 'web' ? Math.min(200, totalItems + sections.length) : 24}
-          removeClippedSubviews={Platform.OS !== 'web'}
+          initialNumToRender={Platform.OS === 'web' ? Math.min(totalItems + sections.length, 1000) : Platform.OS === 'android' ? 30 : 16}
+          windowSize={Platform.OS === 'web' ? 1000 : Platform.OS === 'android' ? 15 : 10}
+          maxToRenderPerBatch={Platform.OS === 'web' ? Math.min(200, totalItems + sections.length) : Platform.OS === 'android' ? 30 : 24}
+          removeClippedSubviews={Platform.OS === 'android' ? false : Platform.OS !== 'web'}
+          getItemLayout={Platform.OS === 'android' ? getItemLayout : undefined}
           contentContainerStyle={{ paddingBottom: 96 + insets.bottom, paddingTop: 4, paddingHorizontal: 16 }}
           ListHeaderComponent={
             <View
