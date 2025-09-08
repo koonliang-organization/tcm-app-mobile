@@ -30,8 +30,12 @@ export default function HomeScreen() {
   const counts = useMemo(() => countByCategory(DATA), []);
 
   return (
-    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
-      <ScrollView contentContainerStyle={{ paddingBottom: 96 + insets.bottom }}>
+    <SafeAreaView style={styles.container} edges={['top', 'left', 'right', 'bottom']}>
+      <ScrollView
+        style={{ paddingHorizontal: 16 }}
+        contentContainerStyle={{ paddingBottom: 96 + insets.bottom }}
+        contentInsetAdjustmentBehavior="automatic"
+      >
         <View style={styles.headerWrap}>
           <SearchBar
             value={query}
@@ -42,7 +46,12 @@ export default function HomeScreen() {
           <CategoryBoxes
             selected={category}
             counts={counts}
-            onSelect={(key) => setCategory(key)}
+            onSelect={(key) => {
+              setCategory(key);
+              if (key === 'herbs') {
+                router.push('/(protected)/herbs');
+              }
+            }}
           />
           <View style={{ height: 12 }} />
         </View>
@@ -54,5 +63,5 @@ export default function HomeScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#fff' },
-  headerWrap: { paddingTop: 8, paddingHorizontal: 16 },
+  headerWrap: { paddingTop: 8 },
 });
