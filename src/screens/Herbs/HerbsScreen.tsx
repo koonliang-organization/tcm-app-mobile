@@ -18,9 +18,6 @@ export default function HerbsScreen() {
   const [headerHeight, setHeaderHeight] = useState(0);
   const totalItems = sections.reduce((sum, s) => sum + s.data.length, 0);
   
-  // Debug letters vs sections alignment
-  console.log('[HerbsScreen] Letters from hook:', letters);
-  console.log('[HerbsScreen] Sections from hook:', sections.map(s => s.title));
 
   // Android SectionIndexer-like implementation
   const sectionIndexer = useMemo(() => {
@@ -61,32 +58,30 @@ export default function HerbsScreen() {
 
   const scrollToSection = useCallback((letter: string) => {
     const sectionIndex = sections.findIndex((s) => s.title === letter);
-    console.log(`[HerbsScreen] scrollToSection: ${letter} -> sectionIndex: ${sectionIndex}`);
-    
-    // Log all sections for debugging
-    console.log(`[HerbsScreen] All sections:`, sections.map((s, i) => `${i}: ${s.title} (${s.data.length} items)`));
     
     if (sectionIndex < 0) {
-      console.warn(`[HerbsScreen] Section not found for letter: ${letter}`);
       return;
     }
 
-    // For Android, try simpler approach first
+    const section = sections[sectionIndex];
+    if (!section.data.length) {
+      return;
+    }
+
+    // For Android, scroll to the first item in the section (not the header)
     if (Platform.OS === 'android') {
-      console.log(`[HerbsScreen] Android scrolling to section ${sectionIndex} (${letter})`);
-      
-      // Try direct scrollToLocation with no viewPosition/viewOffset to see if that works
+      // Scroll to the first herb item in this section
       listRef.current?.scrollToLocation({
         sectionIndex,
-        itemIndex: 0,
+        itemIndex: 0, // First item in the section
         animated: true,
-        viewPosition: 0, // Top of viewport
+        viewPosition: 0, // Position at top of viewport
       });
     } else {
-      // iOS and web: use existing logic
+      // iOS and web: use existing logic but also target first item
       listRef.current?.scrollToLocation({
         sectionIndex,
-        itemIndex: 0,
+        itemIndex: 0, // First item in the section
         animated: true,
         viewPosition: 0,
         viewOffset: headerHeight + 4,
@@ -95,40 +90,31 @@ export default function HerbsScreen() {
   }, [sections, sectionIndexer, headerHeight]);
 
   const onSelectIndex = (letter: string) => {
-    console.log(`[HerbsScreen] onSelectIndex called with letter: ${letter}, Platform: ${Platform.OS}`);
-    
-    // Web: use DOM anchor for reliable scroll
+    // Web: use SectionList scrollToLocation primarily, with DOM as backup
     if (Platform.OS === 'web') {
-      const doc: any = (globalThis as any).document;
-      const el = doc?.getElementById?.(`herb-section-${letter}`);
-      if (el && el.scrollIntoView) {
-        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        // Offset by the search header height
+      const sectionIndex = sections.findIndex((s) => s.title === letter);
+      
+      if (sectionIndex >= 0) {
+        // Use SectionList's scrollToLocation which should work for both up and down
+        listRef.current?.scrollToLocation({
+          sectionIndex,
+          itemIndex: 0,
+          animated: true,
+          viewPosition: 0,
+          viewOffset: headerHeight + 6, // Account for header offset
+        });
+        
+        // Try DOM fallback after a short delay in case SectionList didn't work
         setTimeout(() => {
-          try { (globalThis as any).scrollBy?.(0, -(headerHeight + 6)); } catch {}
-        }, 50);
-        return;
-      }
-      // If the anchor isn't mounted (due to virtualization), jump near the top
-      // then retry so the element exists.
-      const anyList: any = listRef.current as any;
-      if (anyList?.scrollToOffset) {
-        const targetIdx = letters.indexOf(letter);
-        if (targetIdx !== -1 && targetIdx < letters.length / 2) {
-          anyList.scrollToOffset({ offset: 0, animated: false });
-        } else {
-          // try approximate forward jump if target is later
-          anyList.scrollToLocation?.({ sectionIndex: Math.min(sections.length - 1, targetIdx), itemIndex: 0, animated: false, viewPosition: 0 });
-        }
-        setTimeout(() => {
-          const el2 = doc?.getElementById?.(`herb-section-${letter}`);
-          if (el2 && el2.scrollIntoView) {
-            el2.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          const doc: any = (globalThis as any).document;
+          const el = doc?.getElementById?.(`herb-section-${letter}`);
+          if (el && el.scrollIntoView) {
+            el.scrollIntoView({ behavior: 'smooth', block: 'start' });
             setTimeout(() => {
               try { (globalThis as any).scrollBy?.(0, -(headerHeight + 6)); } catch {}
-            }, 30);
+            }, 50);
           }
-        }, 80);
+        }, 200);
         return;
       }
     }
@@ -137,26 +123,71 @@ export default function HerbsScreen() {
     scrollToSection(letter);
   };
 
-  const renderItem: SectionListRenderItem<Herb> = ({ item }) => <HerbCard herb={item} />;
+  const renderItem: SectionListRenderItem<Herb> = ({ item, section, index }) => {
+    const sectionTitle = (section as any)?.title || '';
+    return (
+      <View nativeID={`herb-item-${sectionTitle}-${index}`}>
+        <HerbCard herb={item} />
+      </View>
+    );
+  };
   const renderSectionHeader = ({ section }: { section: SectionListData<Herb> }) => (
     <View style={styles.header} nativeID={`herb-section-${(section as any).title}`}>
       <Text style={styles.headerTxt}>{section.title}</Text>
     </View>
   );
 
-  // Android-specific getItemLayout for better scrolling performance
+  // Accurate getItemLayout to help Android with scroll positioning
   const getItemLayout = useCallback((data: any, index: number) => {
     if (Platform.OS !== 'android') return undefined;
     
-    const ITEM_HEIGHT = 80; // Estimated height of HerbCard
-    const HEADER_HEIGHT = 32; // Estimated height of section header
+    // More precise heights based on actual component styles
+    const ITEM_HEIGHT = 88; // HerbCard: padding(12*2) + minHeight(64) + marginVertical(6*2) = 88
+    const HEADER_HEIGHT = 32; // Section header height
     
+    // SectionList flattens sections and items into a single list
+    // We need to calculate which "row" this index represents
+    let currentIndex = 0;
+    let offset = 0;
+    
+    for (let sectionIndex = 0; sectionIndex < sections.length; sectionIndex++) {
+      // Section header
+      if (currentIndex === index) {
+        return {
+          length: HEADER_HEIGHT,
+          offset,
+          index,
+        };
+      }
+      if (currentIndex > index) break;
+      
+      offset += HEADER_HEIGHT;
+      currentIndex++;
+      
+      // Section items
+      const section = sections[sectionIndex];
+      for (let itemIndex = 0; itemIndex < section.data.length; itemIndex++) {
+        if (currentIndex === index) {
+          return {
+            length: ITEM_HEIGHT,
+            offset,
+            index,
+          };
+        }
+        if (currentIndex > index) break;
+        
+        offset += ITEM_HEIGHT;
+        currentIndex++;
+      }
+    }
+    
+    // Fallback
     return {
       length: ITEM_HEIGHT,
       offset: index * ITEM_HEIGHT,
       index,
     };
-  }, []);
+  }, [sections]);
 
   return (
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right', 'bottom']}>
@@ -171,6 +202,7 @@ export default function HerbsScreen() {
           initialNumToRender={Platform.OS === 'web' ? Math.min(totalItems + sections.length, 1000) : Platform.OS === 'android' ? 30 : 16}
           windowSize={Platform.OS === 'web' ? 1000 : Platform.OS === 'android' ? 15 : 10}
           maxToRenderPerBatch={Platform.OS === 'web' ? Math.min(200, totalItems + sections.length) : Platform.OS === 'android' ? 30 : 24}
+          maintainVisibleContentPosition={Platform.OS === 'web' ? undefined : null}
           removeClippedSubviews={Platform.OS === 'android' ? false : Platform.OS !== 'web'}
           getItemLayout={Platform.OS === 'android' ? getItemLayout : undefined}
           contentContainerStyle={{ paddingBottom: 96 + insets.bottom, paddingTop: 4, paddingHorizontal: 16 }}
