@@ -46,7 +46,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     backgroundColor: 'transparent',
   },
-  item: { paddingVertical: 2, paddingHorizontal: 4, borderRadius: 4 },
+  item: { paddingVertical: 4, paddingHorizontal: 6, borderRadius: 4 },
   pressed: { backgroundColor: 'rgba(0,0,0,0.06)' },
-  txt: { fontSize: 11, color: '#333' },
+  txt: { fontSize: 13, color: '#333' },
 });

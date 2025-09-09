@@ -2,6 +2,7 @@ import type { Herb } from '@/data/herbs';
 import React, { useRef, useState, useCallback, useMemo } from 'react';
 import { SectionList, SectionListData, SectionListRenderItem, StyleSheet, Text, View, Platform } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useRouter } from 'expo-router';
 import { BottomCategoryNav } from '../Home/components/BottomCategoryNav';
 import { SearchBar } from '../Home/components/SearchBar';
 import type { MainTab } from '../Home/HomeScreen';
@@ -13,10 +14,19 @@ export default function HerbsScreen() {
   const { sections, letters } = useHerbsSections();
   const listRef = useRef<SectionList<Herb>>(null);
   const insets = useSafeAreaInsets();
+  const router = useRouter();
   const [query, setQuery] = useState('');
   const [activeTab, setActiveTab] = useState<MainTab>('home');
   const [headerHeight, setHeaderHeight] = useState(0);
   const totalItems = sections.reduce((sum, s) => sum + s.data.length, 0);
+  
+  const handleTabSelect = useCallback((tab: MainTab) => {
+    if (tab === 'home') {
+      router.push('/(protected)/');
+    } else {
+      setActiveTab(tab);
+    }
+  }, [router]);
   
 
   // Android SectionIndexer-like implementation
@@ -218,7 +228,7 @@ export default function HerbsScreen() {
         />
         <AlphaIndexBar letters={letters} onSelect={onSelectIndex} />
       </View>
-      <BottomCategoryNav activeTab={activeTab} onSelectTab={setActiveTab} />
+      <BottomCategoryNav activeTab={activeTab} onSelectTab={handleTabSelect} />
     </SafeAreaView>
   );
 }

@@ -2,7 +2,7 @@ import { useToast } from '@/components/Toast/ToastProvider';
 import { DATA, countByCategory } from '@/data/mockData';
 import { signOut } from '@/services/authService';
 import { useRouter } from 'expo-router';
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useCallback } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BottomCategoryNav } from './components/BottomCategoryNav';
@@ -26,6 +26,16 @@ export default function HomeScreen() {
     show('Signed out');
     router.replace('/auth/login');
   };
+
+  const handleTabSelect = useCallback((tab: MainTab) => {
+    if (tab === 'home') {
+      // Already on home, no navigation needed
+      setActiveTab(tab);
+    } else {
+      // For other tabs, just update state for now
+      setActiveTab(tab);
+    }
+  }, []);
 
   const counts = useMemo(() => countByCategory(DATA), []);
 
@@ -56,7 +66,7 @@ export default function HomeScreen() {
           </View>
         </View>
       </ScrollView>
-      <BottomCategoryNav activeTab={activeTab} onSelectTab={setActiveTab} onSignOut={handleSignOut} />
+      <BottomCategoryNav activeTab={activeTab} onSelectTab={handleTabSelect} onSignOut={handleSignOut} />
     </SafeAreaView>
   );
 }
