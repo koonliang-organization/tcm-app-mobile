@@ -1,8 +1,8 @@
 import type { Herb } from '@/data/herbs';
-import React, { useRef, useState, useCallback, useMemo } from 'react';
-import { SectionList, SectionListData, SectionListRenderItem, StyleSheet, Text, View, Platform } from 'react-native';
-import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
+import { Platform, SectionList, SectionListData, SectionListRenderItem, StyleSheet, Text, View } from 'react-native';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BottomCategoryNav } from '../Home/components/BottomCategoryNav';
 import { SearchBar } from '../Home/components/SearchBar';
 import type { MainTab } from '../Home/HomeScreen';
@@ -67,37 +67,73 @@ export default function HerbsScreen() {
   }, [sections, letters]);
 
   const scrollToSection = useCallback((letter: string) => {
+    console.log("=== scrollToSection DEBUG ===");
+    console.log("Target letter:", letter);
+    console.log("Available sections:", sections.map(s => ({ title: s.title, count: s.data.length })));
+    
     const sectionIndex = sections.findIndex((s) => s.title === letter);
+    console.log("Found sectionIndex:", sectionIndex);
     
     if (sectionIndex < 0) {
+      console.log("ERROR: Section not found for letter:", letter);
       return;
     }
 
     const section = sections[sectionIndex];
+    console.log("Section data:", { title: section.title, itemCount: section.data.length });
+    
     if (!section.data.length) {
+      console.log("ERROR: Section has no data");
       return;
     }
 
-    // For Android, scroll to the first item in the section (not the header)
+    // Find the first item that actually starts with the clicked letter
+    let targetItemIndex = 0;
+    console.log("Searching for first item matching letter:", letter);
+    
+    for (let i = 0; i < section.data.length; i++) {
+      const herb = section.data[i];
+      const firstLetter = (herb.namePinyin || herb.nameZh).trim().charAt(0).toUpperCase();
+      console.log(`Item ${i}: ${herb.nameZh} (${herb.namePinyin}) -> firstLetter: ${firstLetter}`);
+      
+      if (firstLetter === letter || (letter === '#' && !/[A-Z]/.test(firstLetter))) {
+        targetItemIndex = i;
+        console.log(`MATCH FOUND at index ${i}: ${herb.nameZh}`);
+        break;
+      }
+    }
+    
+    console.log("Final targetItemIndex:", targetItemIndex);
+    console.log("Target herb:", section.data[targetItemIndex]?.nameZh, section.data[targetItemIndex]?.namePinyin);
+
+    // For Android, use direct ScrollView access (scrollToLocation doesn't work)
     if (Platform.OS === 'android') {
-      // Scroll to the first herb item in this section
-      listRef.current?.scrollToLocation({
-        sectionIndex,
-        itemIndex: 0, // First item in the section
-        animated: true,
-        viewPosition: 0, // Position at top of viewport
-      });
+      console.log(`[Android] Direct scroll - letter: ${letter}, sectionIndex: ${sectionIndex}, itemIndex: ${targetItemIndex}`);
+      
+      try {
+        const scrollView = (listRef.current as any)?.getScrollResponder?.();
+        if (scrollView?.scrollTo) {
+          // Very simple estimate: just multiply section index by a reasonable amount
+          const roughOffset = sectionIndex * 800; // ~800px per section
+          console.log(`[Android] Using rough section-based offset: ${roughOffset}`);
+          scrollView.scrollTo({ y: roughOffset, animated: true });
+        } else {
+          console.log(`[Android] Could not access ScrollView`);
+        }
+      } catch (error) {
+        console.log('[Android] Error:', error);
+      }
     } else {
-      // iOS and web: use existing logic but also target first item
+      // iOS and web: use existing logic but target the first matching item
       listRef.current?.scrollToLocation({
         sectionIndex,
-        itemIndex: 0, // First item in the section
+        itemIndex: targetItemIndex,
         animated: true,
         viewPosition: 0,
         viewOffset: headerHeight + 4,
       });
     }
-  }, [sections, sectionIndexer, headerHeight]);
+  }, [sections, headerHeight]);
 
   const onSelectIndex = (letter: string) => {
     // Web: use SectionList scrollToLocation primarily, with DOM as backup
@@ -105,10 +141,24 @@ export default function HerbsScreen() {
       const sectionIndex = sections.findIndex((s) => s.title === letter);
       
       if (sectionIndex >= 0) {
+        const section = sections[sectionIndex];
+        if (!section.data.length) return;
+
+        // Find the first item that actually starts with the clicked letter
+        let targetItemIndex = 0;
+        for (let i = 0; i < section.data.length; i++) {
+          const herb = section.data[i];
+          const firstLetter = (herb.namePinyin || herb.nameZh).trim().charAt(0).toUpperCase();
+          if (firstLetter === letter || (letter === '#' && !/[A-Z]/.test(firstLetter))) {
+            targetItemIndex = i;
+            break;
+          }
+        }
+
         // Use SectionList's scrollToLocation which should work for both up and down
         listRef.current?.scrollToLocation({
           sectionIndex,
-          itemIndex: 0,
+          itemIndex: targetItemIndex,
           animated: true,
           viewPosition: 0,
           viewOffset: headerHeight + 6, // Account for header offset
@@ -214,7 +264,7 @@ export default function HerbsScreen() {
           maxToRenderPerBatch={Platform.OS === 'web' ? Math.min(200, totalItems + sections.length) : Platform.OS === 'android' ? 30 : 24}
           maintainVisibleContentPosition={Platform.OS === 'web' ? undefined : null}
           removeClippedSubviews={Platform.OS === 'android' ? false : Platform.OS !== 'web'}
-          getItemLayout={Platform.OS === 'android' ? getItemLayout : undefined}
+          getItemLayout={undefined}
           contentContainerStyle={{ paddingBottom: 96 + insets.bottom, paddingTop: 4, paddingHorizontal: 16 }}
           ListHeaderComponent={
             <View
