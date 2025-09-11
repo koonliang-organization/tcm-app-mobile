@@ -17,7 +17,11 @@ export const HerbCard = React.memo(({ herb, onPress }: HerbCardProps) => {
         <Text style={styles.title}>{herb.nameZh}</Text>
         <Text style={styles.subtitle}>{herb.namePinyin}</Text>
 
-        {!!herb.family && <Text style={styles.caption}>{herb.family}</Text>}
+        {!!(herb.family || herb.familyZh) && (
+          <Text style={styles.caption}>
+            {herb.family || ''}{herb.family && herb.familyZh ? ' · ' : ''}{herb.familyZh || ''}
+          </Text>
+        )}
 
         {(herb.property || (herb.flavor && herb.flavor.length)) && (
           <View style={styles.tagsRow}>
@@ -34,8 +38,18 @@ export const HerbCard = React.memo(({ herb, onPress }: HerbCardProps) => {
           <Text style={styles.bodyText}>Meridians: {herb.meridians.join(', ')}</Text>
         )}
 
+        {!!herb.appearance && (
+          <Text style={styles.bodyText}>
+            Appearance: {herb.appearance}
+          </Text>
+        )}
+
         {!!(herb.indications && herb.indications.length) && (
           <Text style={styles.bodyText}>Indications: {herb.indications.join(' • ')}</Text>
+        )}
+
+        {!!(herb.formulas && herb.formulas.length) && (
+          <Text style={styles.bodyText}>Formulas: {herb.formulas.length}</Text>
         )}
 
         {!!herb.sourceUrl && (

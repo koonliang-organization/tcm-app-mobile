@@ -106,9 +106,6 @@ async function main() {
 main().catch((e) => { console.error(e); process.exit(1); });
 ```
 
-Run locally:
-- `ts-node scripts/build-herbs.ts` or `node scripts/build-herbs.ts` (if you switch to JS)
-
 ## Grouping & Index
 ```ts
 // src/screens/Herbs/hooks/useHerbsData.ts
