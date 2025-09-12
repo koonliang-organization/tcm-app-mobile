@@ -10,6 +10,10 @@
     "lint": "expo lint",
     "test": "jest",
     "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "test:coverage-watch": "jest --watch --coverage",
+    "test:coverage-ci": "jest --coverage --ci --watchAll=false",
+    "test:coverage-report": "jest --coverage && open coverage/lcov-report/index.html",
     "test:e2e": "playwright test"
   },
   "dependencies": {
@@ -43,23 +47,6 @@
     "jest-expo": "~53.0.10",
     "react-test-renderer": "19.0.0",
     "typescript": "~5.8.3"
-  },
-  "jest": {
-    "preset": "jest-expo",
-    "testMatch": [
-      "**/__tests__/**/*.(test|spec).(ts|tsx|js|jsx)"
-    ],
-    "setupFilesAfterEnv": [
-      "<rootDir>/jest/setup.ts"
-    ],
-    "moduleNameMapper": {
-      "^@/(.*)": "<rootDir>/src/$1",
-      "^@assets/(.*)": "<rootDir>/assets/$1"
-    },
-    "transformIgnorePatterns": [
-      "/node_modules/(?!((jest-)?react-native|@react-native(-community)?)|expo(nent)?|expo-modules-core|@expo(nent)?/.*|@expo-google-fonts/.*|react-navigation|@react-navigation/.*|@sentry/react-native|native-base|react-native-svg)",
-      "/node_modules/react-native-reanimated/plugin/"
-    ]
   },
   "private": true
 }

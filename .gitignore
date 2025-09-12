@@ -38,3 +38,7 @@ yarn-error.*
 
 app-example
 /test-results
+
+# Test coverage
+coverage/
+*.lcov
