@@ -67,6 +67,8 @@ export const HerbCard = React.memo(({ herb, onPress }: HerbCardProps) => {
   );
 });
 
+HerbCard.displayName = 'HerbCard';
+
 const styles = StyleSheet.create({
   card: {
     flexDirection: 'row',

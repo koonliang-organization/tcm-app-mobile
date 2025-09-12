@@ -1,6 +1,6 @@
 import type { Herb } from '@/data/herbs';
 import { useRouter } from 'expo-router';
-import React, { useCallback, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { Platform, Pressable, SectionList, SectionListData, SectionListRenderItem, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BottomCategoryNav } from '../Home/components/BottomCategoryNav';
@@ -12,12 +12,10 @@ import { useHerbsSections } from './hooks/useHerbsData';
 
 export default function HerbsScreen() {
   const { sections, letters } = useHerbsSections();
-  const listRef = useRef<SectionList<Herb>>(null);
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const [query, setQuery] = useState('');
   const [activeTab, setActiveTab] = useState<MainTab>('home');
-  const [headerHeight, setHeaderHeight] = useState(0);
   const [selectedLetter, setSelectedLetter] = useState<string | null>(null);
   const filteredSections = useMemo(() => {
     if (!selectedLetter) return sections;
@@ -60,7 +58,6 @@ export default function HerbsScreen() {
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right', 'bottom']}>
       <View style={{ flex: 1 }}>
         <SectionList
-          ref={listRef}
           sections={filteredSections as any}
           keyExtractor={(item) => item.id}
           renderItem={renderItem}
@@ -71,14 +68,11 @@ export default function HerbsScreen() {
           maxToRenderPerBatch={Platform.OS === 'web' ? Math.min(200, totalItems + filteredSections.length) : Platform.OS === 'android' ? 30 : 24}
           contentContainerStyle={{ paddingBottom: 96 + insets.bottom, paddingTop: 4, paddingHorizontal: 16 }}
           ListHeaderComponent={
-            <View
-              style={{ paddingTop: 8 }}
-              onLayout={(e) => setHeaderHeight(e.nativeEvent.layout.height)}
-            >
+            <View style={{ paddingTop: 8 }}>
               <SearchBar value={query} onChangeText={setQuery} placeholder="Search herbs" onOpenFilters={() => {}} />
               {selectedLetter && (
                 <View style={styles.filterInfo}>
-                  <Text style={styles.filterText}>Showing herbs starting with "{selectedLetter}"</Text>
+                  <Text style={styles.filterText}>Showing herbs starting with &ldquo;{selectedLetter}&rdquo;</Text>
                   <Pressable onPress={() => setSelectedLetter(null)} style={styles.clearFilter}>
                     <Text style={styles.clearFilterText}>Clear</Text>
                   </Pressable>

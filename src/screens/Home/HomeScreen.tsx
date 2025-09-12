@@ -4,7 +4,7 @@ import { signOut } from '@/services/authService';
 import { useRouter } from 'expo-router';
 import React, { useMemo, useState, useCallback } from 'react';
 import { StyleSheet, ScrollView } from 'react-native';
-import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { BottomCategoryNav } from './components/BottomCategoryNav';
 import { CategoryBoxes } from './components/CategoryBoxes';
 
@@ -14,7 +14,6 @@ export type MainTab = 'home' | 'upload' | 'scan' | 'notifications' | 'profile';
 export default function HomeScreen() {
   const router = useRouter();
   const { show } = useToast();
-  const insets = useSafeAreaInsets();
 
   const [category, setCategory] = useState<Category | null>(null);
   const [activeTab, setActiveTab] = useState<MainTab>('home');
